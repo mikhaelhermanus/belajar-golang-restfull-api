@@ -9,13 +9,29 @@ import (
 	"belajar-golang-restful-api/service"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 )
 
+func goDotEnvVariable(key string) string {
+
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	return os.Getenv(key)
+}
+
 func main() {
-	db := app.NewDB()
+	local := goDotEnvVariable("USER_LOCAL")
+	database := goDotEnvVariable("DATABASE_LOCAL")
+	db := app.NewDB(local, database)
 	validate := validator.New()
 	categoryRepository := repository.NewCategoryRepository()
 	categoryService := service.NewCategoryService(categoryRepository, db, validate)
@@ -27,6 +43,7 @@ func main() {
 	// router.PUT("/api/categories/:categoryId", categoryController.Update)
 	// router.DELETE("/api/categories/:categoryId", categoryController.Delete)
 	// router.PanicHandler = exception.ErrorHandler
+
 	router := app.NewRouter(categoryController)
 
 	server := http.Server{
