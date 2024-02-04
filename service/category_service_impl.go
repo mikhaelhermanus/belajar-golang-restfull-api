@@ -8,7 +8,7 @@ import (
 	"belajar-golang-restful-api/repository"
 	"context"
 	"database/sql"
-	"log"
+	"errors"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -28,7 +28,8 @@ func NewCategoryService(categoryRepository repository.CategoryRepository, DB *sq
 	}
 }
 
-func (service *CategoryServiceImpl) Create(ctx context.Context, request web.CategoryCreateRequest) web.CategoryResponse {
+func (service *CategoryServiceImpl) Create(ctx context.Context, request web.CategoryCreateRequest) (web.CategoryResponse, error) {
+
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -36,15 +37,21 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request web.Cate
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	value, e := service.CategoryRepository.FindDuplicateCategory(ctx, tx, request.Name)
+	helper.PanicIfError(e)
+	if value >= 1 {
+		return web.CategoryResponse{
+			Message: "Kategori Sudah ada",
+		}, errors.New("found")
+	}
+
 	category := domain.Category{
 		Name: request.Name,
 	}
 
 	category, err = service.CategoryRepository.Save(ctx, tx, category)
-	if err != nil {
-		log.Println(err)
-	}
-	return helper.ToCategoryResponse(category)
+	helper.PanicIfError(err)
+	return helper.ToCategoryResponse(category), nil
 }
 
 func (service *CategoryServiceImpl) Update(ctx context.Context, request web.CategoryUpdateRequest) web.CategoryResponse {

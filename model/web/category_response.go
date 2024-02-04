@@ -1,6 +1,8 @@
 package web
 
 type CategoryResponse struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	// if isempty message , will return undefined
+	Id      int    `json:"id,omitempty"`
+	Name    string `json:"name,omitempty"`
+	Message string `json:"message,omitempty"`
 }
