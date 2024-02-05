@@ -6,10 +6,11 @@ import (
 	"net/http"
 )
 
-func ReadFromRequestBody(request *http.Request, result interface{}) {
+func ReadFromRequestBody(request *http.Request, result interface{}) error {
 	decoder := json.NewDecoder(request.Body)
 	err := decoder.Decode(result)
-	PanicIfError(err)
+	// PanicIfError(err)
+	return err
 }
 
 func WriteToResponseBody(writer http.ResponseWriter, response interface{}) {

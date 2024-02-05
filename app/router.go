@@ -2,12 +2,13 @@ package app
 
 import (
 	"belajar-golang-restful-api/controller"
+	productController "belajar-golang-restful-api/controller/products"
 	"belajar-golang-restful-api/exception"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func NewRouter(categoryController controller.CategoryController) *httprouter.Router {
+func NewRouter(categoryController controller.CategoryController, productController productController.ProductController) *httprouter.Router {
 	router := httprouter.New()
 
 	router.GET("/api/categories", categoryController.FindAll)
@@ -15,6 +16,8 @@ func NewRouter(categoryController controller.CategoryController) *httprouter.Rou
 	router.POST("/api/categories", categoryController.Create)
 	router.PUT("/api/categories/:categoryId", categoryController.Update)
 	router.DELETE("/api/categories/:categoryId", categoryController.Delete)
+	// products
+	router.POST("/api/products", productController.Create)
 
 	router.PanicHandler = exception.ErrorHandler
 
