@@ -45,3 +45,11 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request web.Produ
 		Name: products.Name,
 	}, nil
 }
+
+func (service *ProductServiceImpl) FindAll(ctx context.Context) []web.ProductsResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+	products := service.ProductsRepository.FindAll(ctx, tx)
+	return helper.ToProductResponses(products)
+}

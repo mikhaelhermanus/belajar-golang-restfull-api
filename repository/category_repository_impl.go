@@ -11,16 +11,9 @@ import (
 type CategoryRepositoryImpl struct {
 }
 
-// yang ini kenapa beda sendiri
 func NewCategoryRepository() CategoryRepository {
 	return &CategoryRepositoryImpl{}
 }
-
-//2 create repos implment findDuplicate()(value int,e  error){
-//execution funcion
-//QueryRowContext ==> row >=1
-//return
-//}
 
 func (repository *CategoryRepositoryImpl) FindDuplicateCategory(ctx context.Context, tx *sql.Tx, categoryName string) (value int, e error) {
 	SQL := "select count(name) from category where name like (?)"

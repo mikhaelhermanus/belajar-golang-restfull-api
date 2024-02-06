@@ -45,3 +45,14 @@ func (controller *ProductControllerImpl) Create(writter http.ResponseWriter, req
 	helper.WriteToResponseBody(writter, webResponse)
 
 }
+
+func (controller *ProductControllerImpl) FindAll(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	productResponses := controller.ProductService.FindAll(request.Context())
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   productResponses,
+	}
+
+	helper.WriteToResponseBody(writter, webResponse)
+}
