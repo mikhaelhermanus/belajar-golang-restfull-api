@@ -7,6 +7,7 @@ import (
 	service "belajar-golang-restful-api/service/products"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -44,6 +45,21 @@ func (controller *ProductControllerImpl) Create(writter http.ResponseWriter, req
 	}
 	helper.WriteToResponseBody(writter, webResponse)
 
+}
+
+func (controller *ProductControllerImpl) FindById(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	productId := params.ByName("productId")
+	id, err := strconv.Atoi(productId)
+	helper.PanicIfError(err)
+
+	productResponse := controller.ProductService.FindById(request.Context(), id)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   productResponse,
+	}
+
+	helper.WriteToResponseBody(writter, webResponse)
 }
 
 func (controller *ProductControllerImpl) FindAll(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {

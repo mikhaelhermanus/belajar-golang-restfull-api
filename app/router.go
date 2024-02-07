@@ -19,6 +19,7 @@ func NewRouter(categoryController controller.CategoryController, productControll
 	// products
 	router.POST("/api/products", productController.Create)
 	router.GET("/api/products", productController.FindAll)
+	router.GET("/api/products/:productId", productController.FindById)
 
 	router.PanicHandler = exception.ErrorHandler
 

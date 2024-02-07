@@ -1,6 +1,7 @@
 package service
 
 import (
+	"belajar-golang-restful-api/exception"
 	"belajar-golang-restful-api/helper"
 	"belajar-golang-restful-api/model/domain"
 	web "belajar-golang-restful-api/model/web/produtcs"
@@ -44,6 +45,20 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request web.Produ
 		Id:   products.Id,
 		Name: products.Name,
 	}, nil
+}
+
+func (service *ProductServiceImpl) FindById(ctx context.Context, productId int) web.ProductsResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	product, err := service.ProductsRepository.FindById(ctx, tx, productId)
+
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	return helper.ToProductResponse(product)
 }
 
 func (service *ProductServiceImpl) FindAll(ctx context.Context) []web.ProductsResponse {

@@ -5,6 +5,7 @@ import (
 	"belajar-golang-restful-api/model/domain"
 	"context"
 	"database/sql"
+	"errors"
 	"log"
 )
 
@@ -27,6 +28,25 @@ func (repository *ProductsRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, 
 
 	products.Id = int(id)
 	return products, nil
+}
+
+func (repository *ProductsRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, productId int) (domain.ProductsAll, error) {
+	// select products.id as product_id, products.name as product_name, category.name as category from products join category on category.id = products.category_id where products.id = 2;
+	SQL := "select products.id as product_id, products.name as product_name, category.name as category from products join category on category.id = products.category_id where products.id = ?"
+
+	rows, err := tx.QueryContext(ctx, SQL, productId)
+
+	helper.PanicIfError(err)
+	defer rows.Close()
+
+	product := domain.ProductsAll{}
+	if rows.Next() {
+		err := rows.Scan(&product.Id, &product.Name, &product.CategoryName)
+		helper.PanicIfError(err)
+		return product, nil
+	} else {
+		return product, errors.New("Product Not Found")
+	}
 }
 
 func (repository *ProductsRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.ProductsAll {
