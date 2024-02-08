@@ -68,3 +68,55 @@ func (service *ProductServiceImpl) FindAll(ctx context.Context) []web.ProductsRe
 	products := service.ProductsRepository.FindAll(ctx, tx)
 	return helper.ToProductResponses(products)
 }
+
+// func (service *ProductServiceImpl) Delete(ctx context.Context, productId int) {
+// 	tx, err := service.DB.Begin()
+// 	helper.PanicIfError(err)
+// 	defer helper.CommitOrRollback(tx)
+
+// 	product, err := service.ProductsRepository.FindById(ctx, tx, productId)
+
+// 	if err != nil {
+// 		panic(exception.NewNotFoundError(err.Error()))
+// 	}
+
+// 	service.ProductsRepository.Delete(ctx, tx, product)
+
+// }
+
+func (service *ProductServiceImpl) Update(ctx context.Context, request web.ProductUpdateRequest) web.ProductsResponse {
+	err := service.Validate.Struct(request)
+	helper.PanicIfError(err)
+
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	product, err := service.ProductsRepository.FindById(ctx, tx, request.Id)
+
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	productRequest := domain.Products{
+		Id:         request.Id,
+		Name:       request.Name,
+		CategoryId: request.CategoryId,
+	}
+
+	// products.Name = request.Name
+	err = service.ProductsRepository.Update(ctx, tx, productRequest)
+	return web.ProductsResponse{
+		Id:           product.Id,
+		Name:         request.Name,
+		CategoryName: product.CategoryName,
+	}
+}
+
+func (service *ProductServiceImpl) Delete(ctx context.Context, productId int) {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	service.ProductsRepository.Delete(ctx, tx, productId)
+}

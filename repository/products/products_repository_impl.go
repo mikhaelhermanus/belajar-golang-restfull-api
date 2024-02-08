@@ -59,9 +59,27 @@ func (repository *ProductsRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	var products []domain.ProductsAll
 	for rows.Next() {
 		product := domain.ProductsAll{}
+		// scan ordering by sql syntax we fill example sql : id, name, categoryName
 		err := rows.Scan(&product.Id, &product.Name, &product.CategoryName)
 		helper.PanicIfError(err)
 		products = append(products, product)
 	}
 	return products
+}
+
+func (repository *ProductsRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, product domain.Products) error {
+	SQL := "update products set name = ? , category_id = ? where id = ?"
+	// _ tidak perlu handle return value use _
+	_, err := tx.ExecContext(ctx, SQL, product.Name, product.CategoryId, product.Id)
+	helper.PanicIfError(err)
+
+	return nil
+}
+
+func (respository *ProductsRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, productId int) {
+	SQL := "delete from products where id = ?"
+
+	_, err := tx.ExecContext(ctx, SQL, productId)
+
+	helper.PanicIfError(err)
 }

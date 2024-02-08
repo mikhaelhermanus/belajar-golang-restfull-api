@@ -72,3 +72,39 @@ func (controller *ProductControllerImpl) FindAll(writter http.ResponseWriter, re
 
 	helper.WriteToResponseBody(writter, webResponse)
 }
+
+func (controller *ProductControllerImpl) Update(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	productUpdateRequest := webProducts.ProductUpdateRequest{}
+	helper.ReadFromRequestBody(request, &productUpdateRequest)
+
+	productId := params.ByName("productId")
+	id, err := strconv.Atoi(productId) // conversi string ke object 'Atoi'
+	helper.PanicIfError(err)
+
+	productUpdateRequest.Id = id
+
+	productResponse := controller.ProductService.Update(request.Context(), productUpdateRequest)
+
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   productResponse,
+	}
+
+	helper.WriteToResponseBody(writter, webResponse)
+}
+
+func (controller *ProductControllerImpl) Delete(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	productId := params.ByName("productId")
+	id, err := strconv.Atoi(productId) // conversi string ke object 'Atoi'
+	helper.PanicIfError(err)
+
+	controller.ProductService.Delete(request.Context(), id)
+
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+	}
+
+	helper.WriteToResponseBody(writter, webResponse)
+}
