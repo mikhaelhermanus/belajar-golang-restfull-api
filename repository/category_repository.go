@@ -10,6 +10,7 @@ type CategoryRepository interface {
 	//something (context, realtion transicition, params what we need) return something
 	//ctx => tipe data context.
 	// 1. find duplicate (name string) (value int, e error)
+	FindDuplicateCategory(ctx context.Context, tx *sql.Tx, categoryName string) (value int, e error)
 	Save(ctx context.Context, tx *sql.Tx, category domain.Category) (domain.Category, error)
 	Update(ctx context.Context, tx *sql.Tx, category domain.Category) domain.Category
 	Delete(ctx context.Context, tx *sql.Tx, category domain.Category)

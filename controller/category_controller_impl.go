@@ -26,7 +26,16 @@ func (controller *CategoryControllerImpl) Create(writer http.ResponseWriter, req
 	categoryCreateRequest := web.CategoryCreateRequest{}
 	helper.ReadFromRequestBody(request, &categoryCreateRequest)
 
-	categoryResponse := controller.CategoryService.Create(request.Context(), categoryCreateRequest)
+	categoryResponse, e := controller.CategoryService.Create(request.Context(), categoryCreateRequest)
+	if e.Error() == "found" {
+		webResponse := web.WebResponse{
+			Code:   403,
+			Status: "Invalid",
+			Data:   categoryResponse,
+		}
+		helper.WriteToResponseBody(writer, webResponse)
+		return
+	}
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",

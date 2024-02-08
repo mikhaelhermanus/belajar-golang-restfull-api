@@ -11,16 +11,17 @@ import (
 type CategoryRepositoryImpl struct {
 }
 
-// yang ini kenapa beda sendiri
 func NewCategoryRepository() CategoryRepository {
 	return &CategoryRepositoryImpl{}
 }
 
-//2 create repos implment findDuplicate()(value int,e  error){
-//execution funcion
-//QueryRowContext ==> row >=1
-//return
-//}
+func (repository *CategoryRepositoryImpl) FindDuplicateCategory(ctx context.Context, tx *sql.Tx, categoryName string) (value int, e error) {
+	SQL := "select count(name) from category where name like (?)"
+	// value di dapat dari hasil scan menunjuk pointer
+	e = tx.QueryRowContext(ctx, SQL, categoryName).Scan(&value)
+
+	return value, e
+}
 
 func (repository *CategoryRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, category domain.Category) (domain.Category, error) {
 	// query check for duplicate
