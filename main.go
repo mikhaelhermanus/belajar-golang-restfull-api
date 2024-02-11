@@ -44,9 +44,10 @@ func main() {
 	productRepository := productRepository.NewProductsRepository()
 	productService := productService.NewProductService(productRepository, db, validate)
 	productController := productController.NewProductController(productService)
-
+	// user
+	// userController := userController.
 	router := app.NewRouter(categoryController, productController)
-
+	// routerLogin := app.NewRouter(routerlogin)
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: middleware.NewAuthMiddleware(router),

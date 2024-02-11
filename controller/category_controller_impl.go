@@ -11,11 +11,9 @@ import (
 )
 
 type CategoryControllerImpl struct {
-	// kapan menggunakan pointer dan tidak pointer
 	CategoryService service.CategoryService
 }
 
-// ini function buat ngapain ??
 func NewCategoryController(categoryService service.CategoryService) CategoryController {
 	return &CategoryControllerImpl{
 		CategoryService: categoryService,

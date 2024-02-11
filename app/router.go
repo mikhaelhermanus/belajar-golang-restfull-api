@@ -3,6 +3,7 @@ package app
 import (
 	"belajar-golang-restful-api/controller"
 	productController "belajar-golang-restful-api/controller/products"
+	userController "belajar-golang-restful-api/controller/users"
 	"belajar-golang-restful-api/exception"
 
 	"github.com/julienschmidt/httprouter"
@@ -22,6 +23,7 @@ func NewRouter(categoryController controller.CategoryController, productControll
 	router.GET("/api/products/:productId", productController.FindById)
 	router.PUT("/api/products/:productId", productController.Update)
 	router.DELETE("/api/products/:productId", productController.Delete)
+	router.POST("/api/login", userController.CreateToken)
 	router.PanicHandler = exception.ErrorHandler
 
 	return router
