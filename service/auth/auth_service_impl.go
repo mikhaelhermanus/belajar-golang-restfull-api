@@ -27,8 +27,10 @@ func NewAuthService(authRepository repository.AuthRepository, DB *sql.DB, valida
 
 func (service *AuthServiceImpl) Create(ctx context.Context, request web.UserCreateRequest) (web.UserCreateResponse, error) {
 	err := service.Validate.Struct(request)
-	helper.PanicIfError(err)
-
+	// helper.PanicIfError(err)
+	if err != nil {
+		return web.UserCreateResponse{}, err
+	}
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)

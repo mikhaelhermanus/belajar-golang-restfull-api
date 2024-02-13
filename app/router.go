@@ -55,7 +55,7 @@ func MuxRouter(categoryController controller.CategoryController, productControll
 	routerMux.HandleFunc("/api/products/{productId}", productController.Delete).Methods("Delete")
 	//user service
 	// routerMux.HandleFunc("/api/login", userController.CreateToken).Methods("Post")
-	routerMux.HandleFunc("/api/user/register", userController.CreateUser).Methods("post")
+	routerMux.HandleFunc("/api/user/register", userController.CreateUser).Methods("Post")
 
 	return routerMux
 }

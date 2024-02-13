@@ -41,7 +41,7 @@ func (controller *ProductControllerImpl) Create(writter http.ResponseWriter, req
 		Data:   productResponse,
 	}
 	if e != nil {
-		log.Println(e)
+		log.Println(e, "line 45")
 	}
 	helper.WriteToResponseBody(writter, webResponse)
 

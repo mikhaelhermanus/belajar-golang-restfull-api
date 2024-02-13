@@ -41,13 +41,20 @@ func (controller *UserControllerImpl) CreateUser(wriiter http.ResponseWriter, re
 	}
 
 	createUserResponse, e := controller.AuthService.Create(request.Context(), userCreateRequest)
+	if e != nil {
+		webResponse := web.WebResponse{
+			Code:   403,
+			Status: "Invalid",
+			Data:   e.Error(),
+		}
+		helper.WriteToResponseBody(wriiter, webResponse)
+		return
+	}
+
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",
 		Data:   createUserResponse,
-	}
-	if e != nil {
-		log.Println(e)
 	}
 
 	helper.WriteToResponseBody(wriiter, webResponse)
