@@ -5,7 +5,6 @@ import (
 	"belajar-golang-restful-api/controller"
 	productController "belajar-golang-restful-api/controller/products"
 	"belajar-golang-restful-api/helper"
-	"belajar-golang-restful-api/middleware"
 	"belajar-golang-restful-api/repository"
 	productRepository "belajar-golang-restful-api/repository/products"
 	"belajar-golang-restful-api/service"
@@ -46,15 +45,21 @@ func main() {
 	productController := productController.NewProductController(productService)
 	// user
 	// userController := userController.
-	router := app.NewRouter(categoryController, productController)
+	// router := app.NewRouter(categoryController, productController)
+	router := app.MuxRouter(categoryController, productController)
 	// routerLogin := app.NewRouter(routerlogin)
+
 	server := http.Server{
 		Addr:    "localhost:3000",
-		Handler: middleware.NewAuthMiddleware(router),
+		Handler: router,
 	}
 
-	log.Println("running on port : ", server.Addr)
+	// mux router version
+	// mux := mux.NewRouter()
+	// mux.HandleFunc("/api/categories", productController.FindAll).Methods("Get")
 
+	log.Println("running on port : ", server.Addr)
+	// log.Fatal(http.ListenAndServe(":3000", mux))
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)
 }

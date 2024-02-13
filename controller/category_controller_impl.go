@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 )
 
 type CategoryControllerImpl struct {
@@ -20,7 +20,7 @@ func NewCategoryController(categoryService service.CategoryService) CategoryCont
 	}
 }
 
-func (controller *CategoryControllerImpl) Create(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller *CategoryControllerImpl) Create(writer http.ResponseWriter, request *http.Request) {
 	categoryCreateRequest := web.CategoryCreateRequest{}
 	helper.ReadFromRequestBody(request, &categoryCreateRequest)
 
@@ -43,11 +43,12 @@ func (controller *CategoryControllerImpl) Create(writer http.ResponseWriter, req
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
-func (controller *CategoryControllerImpl) Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller *CategoryControllerImpl) Update(writer http.ResponseWriter, request *http.Request) {
 	categoryUpdateRequest := web.CategoryUpdateRequest{}
 	helper.ReadFromRequestBody(request, &categoryUpdateRequest) // why pointer is & ??
 
-	categoryId := params.ByName("categoryId")
+	vars := mux.Vars(request)
+	categoryId := vars["categoryId"]
 	id, err := strconv.Atoi(categoryId) // conversi string ke object 'Atoi'
 	helper.PanicIfError(err)
 
@@ -63,8 +64,9 @@ func (controller *CategoryControllerImpl) Update(writer http.ResponseWriter, req
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
-func (controller *CategoryControllerImpl) Delete(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	categoryId := params.ByName("categoryId")
+func (controller *CategoryControllerImpl) Delete(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	categoryId := vars["categoryId"]
 	id, err := strconv.Atoi(categoryId)
 	helper.PanicIfError(err)
 
@@ -77,8 +79,9 @@ func (controller *CategoryControllerImpl) Delete(writer http.ResponseWriter, req
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
-func (controller *CategoryControllerImpl) FindById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	categoryId := params.ByName("categoryId")
+func (controller *CategoryControllerImpl) FindById(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	categoryId := vars["categoryId"]
 	id, err := strconv.Atoi(categoryId)
 	helper.PanicIfError(err)
 
@@ -92,7 +95,7 @@ func (controller *CategoryControllerImpl) FindById(writer http.ResponseWriter, r
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
-func (controller *CategoryControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller *CategoryControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request) {
 	categoryResponses := controller.CategoryService.FindAll(request.Context())
 	webResponse := web.WebResponse{
 		Code:   200,

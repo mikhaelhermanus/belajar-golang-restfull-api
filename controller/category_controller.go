@@ -2,14 +2,12 @@ package controller
 
 import (
 	"net/http"
-
-	"github.com/julienschmidt/httprouter"
 )
 
 type CategoryController interface {
-	Create(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	Delete(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	FindById(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	Create(writer http.ResponseWriter, request *http.Request)
+	Update(writer http.ResponseWriter, request *http.Request)
+	Delete(writer http.ResponseWriter, request *http.Request)
+	FindById(writer http.ResponseWriter, request *http.Request)
+	FindAll(writer http.ResponseWriter, request *http.Request)
 }
