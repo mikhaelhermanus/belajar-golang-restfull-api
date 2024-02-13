@@ -4,10 +4,13 @@ import (
 	"belajar-golang-restful-api/app"
 	"belajar-golang-restful-api/controller"
 	productController "belajar-golang-restful-api/controller/products"
+	userController "belajar-golang-restful-api/controller/users"
 	"belajar-golang-restful-api/helper"
 	"belajar-golang-restful-api/repository"
+	userRepository "belajar-golang-restful-api/repository/auth"
 	productRepository "belajar-golang-restful-api/repository/products"
 	"belajar-golang-restful-api/service"
+	userService "belajar-golang-restful-api/service/auth"
 	productService "belajar-golang-restful-api/service/products"
 	"log"
 	"net/http"
@@ -44,9 +47,12 @@ func main() {
 	productService := productService.NewProductService(productRepository, db, validate)
 	productController := productController.NewProductController(productService)
 	// user
+	userRepository := userRepository.NewAuthsRepository()
+	userService := userService.NewAuthService(userRepository, db, validate)
+	userController := userController.NewUserController(userService)
 	// userController := userController.
 	// router := app.NewRouter(categoryController, productController)
-	router := app.MuxRouter(categoryController, productController)
+	router := app.MuxRouter(categoryController, productController, userController)
 	// routerLogin := app.NewRouter(routerlogin)
 
 	server := http.Server{

@@ -1,7 +1,11 @@
 package controller
 
 import (
+	"belajar-golang-restful-api/helper"
+	"belajar-golang-restful-api/model/web"
+	webRegister "belajar-golang-restful-api/model/web/register"
 	webUser "belajar-golang-restful-api/model/web/users"
+	service "belajar-golang-restful-api/service/auth"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,12 +15,47 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/julienschmidt/httprouter"
 )
+
+type UserControllerImpl struct {
+	AuthService service.AuthService
+}
+
+func NewUserController(authService service.AuthService) UserController {
+	return &UserControllerImpl{
+		AuthService: authService,
+	}
+}
+
+func (controller *UserControllerImpl) CreateUser(wriiter http.ResponseWriter, request *http.Request) {
+	userCreateRequest := webRegister.UserCreateRequest{}
+	err := helper.ReadFromRequestBody(request, &userCreateRequest)
+	if err != nil {
+		webResponse := web.WebResponse{
+			Code:   400,
+			Status: "Invalid",
+			Data:   err.Error(),
+		}
+		helper.WriteToResponseBody(wriiter, webResponse)
+		return
+	}
+
+	createUserResponse, e := controller.AuthService.Create(request.Context(), userCreateRequest)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   createUserResponse,
+	}
+	if e != nil {
+		log.Println(e)
+	}
+
+	helper.WriteToResponseBody(wriiter, webResponse)
+}
 
 var JwtKey = []byte(os.Getenv("JWT_KEY"))
 
-func CreateToken(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func CreateToken(writter http.ResponseWriter, request *http.Request) {
 
 	var user webUser.User
 	_ = json.NewDecoder(request.Body).Decode(&user)

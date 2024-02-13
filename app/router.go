@@ -33,13 +33,13 @@ func NewRouter(categoryController controller.CategoryController, productControll
 	// router.GET("/api/products/:productId", productController.FindById)
 	// router.PUT("/api/products/:productId", productController.Update)
 	// router.DELETE("/api/products/:productId", productController.Delete)
-	router.POST("/api/login", userController.CreateToken)
+	// router.POST("/api/login", userController.CreateToken)
 	router.PanicHandler = exception.ErrorHandler
 
 	return router
 }
 
-func MuxRouter(categoryController controller.CategoryController, productController productController.ProductController) *mux.Router {
+func MuxRouter(categoryController controller.CategoryController, productController productController.ProductController, userController userController.UserController) *mux.Router {
 	routerMux := mux.NewRouter()
 	// Category Service
 	routerMux.HandleFunc("/api/categories", categoryController.FindAll).Methods("Get")
@@ -53,6 +53,9 @@ func MuxRouter(categoryController controller.CategoryController, productControll
 	routerMux.HandleFunc("/api/products/{productId}", productController.FindById).Methods("Get")
 	routerMux.HandleFunc("/api/products/{productId}", productController.Update).Methods("PUT")
 	routerMux.HandleFunc("/api/products/{productId}", productController.Delete).Methods("Delete")
+	//user service
+	// routerMux.HandleFunc("/api/login", userController.CreateToken).Methods("Post")
+	routerMux.HandleFunc("/api/user/register", userController.CreateUser).Methods("post")
 
 	return routerMux
 }
