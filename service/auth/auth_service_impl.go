@@ -7,6 +7,7 @@ import (
 	repository "belajar-golang-restful-api/repository/auth"
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -29,11 +30,21 @@ func (service *AuthServiceImpl) Create(ctx context.Context, request web.UserCrea
 	err := service.Validate.Struct(request)
 	// helper.PanicIfError(err)
 	if err != nil {
-		return web.UserCreateResponse{}, err
+		return web.UserCreateResponse{
+			Message: err.Error(),
+		}, err
 	}
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
+
+	value, e := service.AuthRepository.CheckDuplicateUser(ctx, tx, request.Username)
+	helper.PanicIfError(e)
+	if value >= 1 {
+		return web.UserCreateResponse{
+			Message: "Username already exist",
+		}, errors.New("found")
+	}
 
 	registerUsers := domain.Register{
 		Email:    request.Email,

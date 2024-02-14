@@ -45,11 +45,13 @@ func (controller *UserControllerImpl) CreateUser(wriiter http.ResponseWriter, re
 		webResponse := web.WebResponse{
 			Code:   403,
 			Status: "Invalid",
-			Data:   e.Error(),
+			Data:   createUserResponse,
 		}
 		helper.WriteToResponseBody(wriiter, webResponse)
 		return
 	}
+
+	helper.PanicIfError(e)
 
 	webResponse := web.WebResponse{
 		Code:   200,

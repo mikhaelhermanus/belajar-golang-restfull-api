@@ -28,3 +28,11 @@ func (repository *AuthsRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, reg
 	register.Id = int(id)
 	return register, nil
 }
+
+func (repository *AuthsRepositoryImpl) CheckDuplicateUser(ctx context.Context, tx *sql.Tx, userName string) (value int, e error) {
+	SQL := "select count(username) from users where username = ?"
+
+	e = tx.QueryRowContext(ctx, SQL, userName).Scan(&value)
+
+	return value, e
+}
