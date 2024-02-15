@@ -3,7 +3,14 @@ package middleware
 import (
 	"belajar-golang-restful-api/helper"
 	"belajar-golang-restful-api/model/web"
+	webUser "belajar-golang-restful-api/model/web/users"
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
+	"strings"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 type AuthMiddleware struct {
@@ -30,4 +37,34 @@ func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request 
 
 		helper.WriteToResponseBody(writer, webResponse)
 	}
+}
+
+var JwtKey = []byte(os.Getenv("JWT_KEY"))
+
+func ValidateMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authorizationHeader := r.Header.Get("authorization")
+		if authorizationHeader != "" {
+			bearerToken := strings.Split(authorizationHeader, " ")
+			if len(bearerToken) == 2 {
+				token, error := jwt.Parse(bearerToken[1], func(token *jwt.Token) (interface{}, error) {
+					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+						return nil, fmt.Errorf("There was an error")
+					}
+					return JwtKey, nil
+				})
+				if error != nil {
+					json.NewEncoder(w).Encode(webUser.Exception{Message: error.Error()})
+					return
+				}
+				if token.Valid {
+					next.ServeHTTP(w, r)
+				} else {
+					json.NewEncoder(w).Encode(webUser.Exception{Message: "Invalid authorization token"})
+				}
+			}
+		} else {
+			json.NewEncoder(w).Encode(webUser.Exception{Message: "An authorization header is required"})
+		}
+	})
 }

@@ -4,6 +4,8 @@ import (
 	"belajar-golang-restful-api/controller"
 	productController "belajar-golang-restful-api/controller/products"
 	userController "belajar-golang-restful-api/controller/users"
+	"belajar-golang-restful-api/middleware"
+
 	"belajar-golang-restful-api/exception"
 	"log"
 	"net/http"
@@ -42,7 +44,7 @@ func NewRouter(categoryController controller.CategoryController, productControll
 func MuxRouter(categoryController controller.CategoryController, productController productController.ProductController, userController userController.UserController) *mux.Router {
 	routerMux := mux.NewRouter()
 	// Category Service
-	routerMux.HandleFunc("/api/categories", categoryController.FindAll).Methods("Get")
+	routerMux.HandleFunc("/api/categories", middleware.ValidateMiddleware(categoryController.FindAll)).Methods("Get")
 	routerMux.HandleFunc("/api/categories/{categoryId}", categoryController.FindById).Methods("Get")
 	routerMux.HandleFunc("/api/categories", categoryController.Create).Methods("Post")
 	routerMux.HandleFunc("/api/categories/{categoryId}", categoryController.Update).Methods("Put")
@@ -54,7 +56,7 @@ func MuxRouter(categoryController controller.CategoryController, productControll
 	routerMux.HandleFunc("/api/products/{productId}", productController.Update).Methods("PUT")
 	routerMux.HandleFunc("/api/products/{productId}", productController.Delete).Methods("Delete")
 	//user service
-	// routerMux.HandleFunc("/api/login", userController.CreateToken).Methods("Post")
+	routerMux.HandleFunc("/api/login", userController.LoginUser).Methods("Post")
 	routerMux.HandleFunc("/api/user/register", userController.CreateUser).Methods("Post")
 
 	return routerMux

@@ -3,8 +3,10 @@ package repository
 import (
 	"belajar-golang-restful-api/helper"
 	"belajar-golang-restful-api/model/domain"
+	web "belajar-golang-restful-api/model/web/users"
 	"context"
 	"database/sql"
+	"errors"
 	"log"
 )
 
@@ -35,4 +37,25 @@ func (repository *AuthsRepositoryImpl) CheckDuplicateUser(ctx context.Context, t
 	e = tx.QueryRowContext(ctx, SQL, userName).Scan(&value)
 
 	return value, e
+}
+
+func (repository *AuthsRepositoryImpl) CheckLoginValidation(ctx context.Context, tx *sql.Tx, userRequest web.User) (web.User, error) {
+	// select username, password from users where username = 'asd';
+	// bulk insert
+	// insert into product value (?),  value (?),  value (?),  value (?)
+	SQL := "select username, password from users where username = ?"
+
+	rows, err := tx.QueryContext(ctx, SQL, userRequest.Username)
+	helper.PanicIfError(err)
+
+	defer rows.Close()
+
+	loginUser := web.User{}
+
+	if rows.Next() {
+		err := rows.Scan(&loginUser.Username, &loginUser.Password)
+		helper.PanicIfError(err)
+		return loginUser, nil
+	}
+	return loginUser, errors.New("Username is not found")
 }

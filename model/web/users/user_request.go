@@ -1,6 +1,6 @@
 package web
 
 type User struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `validate:"required" json:"username"`
+	Password string `validate:"required" json:"password"`
 }

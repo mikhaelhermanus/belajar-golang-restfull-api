@@ -3,5 +3,6 @@ package controller
 import "net/http"
 
 type UserController interface {
-	CreateUser(wriiter http.ResponseWriter, request *http.Request)
+	CreateUser(writter http.ResponseWriter, request *http.Request)
+	LoginUser(writter http.ResponseWriter, request *http.Request)
 }

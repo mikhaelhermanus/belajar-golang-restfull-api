@@ -2,13 +2,17 @@ package service
 
 import (
 	"belajar-golang-restful-api/helper"
+	"belajar-golang-restful-api/middleware"
 	"belajar-golang-restful-api/model/domain"
 	web "belajar-golang-restful-api/model/web/register"
+	user "belajar-golang-restful-api/model/web/users"
 	repository "belajar-golang-restful-api/repository/auth"
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -24,6 +28,43 @@ func NewAuthService(authRepository repository.AuthRepository, DB *sql.DB, valida
 		DB:             DB,
 		Validate:       validate,
 	}
+}
+
+func (service *AuthServiceImpl) Login(ctx context.Context, request user.User) (user.Response, error) {
+	err := service.Validate.Struct(request)
+	if err != nil {
+		return user.Response{
+			Message: err.Error(),
+		}, err
+	}
+
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(tx)
+
+	userRes, e := service.AuthRepository.CheckLoginValidation(ctx, tx, request)
+	helper.PanicIfError(e)
+
+	if userRes.Username != request.Username || userRes.Password != request.Password {
+		return user.Response{
+			Message: "username atau password salah",
+		}, nil
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": request.Username,
+		"password": request.Password,
+		"exp":      time.Now().Add(time.Hour * time.Duration(1)).Unix(), // token expiry
+	})
+
+	tokenString, e := token.SignedString([]byte(middleware.JwtKey))
+	helper.PanicIfError(e)
+
+	return user.Response{
+		Data:    tokenString,
+		Message: "Login Berhasil",
+	}, nil
+
 }
 
 func (service *AuthServiceImpl) Create(ctx context.Context, request web.UserCreateRequest) (web.UserCreateResponse, error) {
