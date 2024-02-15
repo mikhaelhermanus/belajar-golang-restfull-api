@@ -4,11 +4,13 @@ import (
 	"belajar-golang-restful-api/app"
 	"belajar-golang-restful-api/controller"
 	productController "belajar-golang-restful-api/controller/products"
+	userController "belajar-golang-restful-api/controller/users"
 	"belajar-golang-restful-api/helper"
-	"belajar-golang-restful-api/middleware"
 	"belajar-golang-restful-api/repository"
+	userRepository "belajar-golang-restful-api/repository/auth"
 	productRepository "belajar-golang-restful-api/repository/products"
 	"belajar-golang-restful-api/service"
+	userService "belajar-golang-restful-api/service/auth"
 	productService "belajar-golang-restful-api/service/products"
 	"log"
 	"net/http"
@@ -44,16 +46,26 @@ func main() {
 	productRepository := productRepository.NewProductsRepository()
 	productService := productService.NewProductService(productRepository, db, validate)
 	productController := productController.NewProductController(productService)
-
-	router := app.NewRouter(categoryController, productController)
+	// user
+	userRepository := userRepository.NewAuthsRepository()
+	userService := userService.NewAuthService(userRepository, db, validate)
+	userController := userController.NewUserController(userService)
+	// userController := userController.
+	// router := app.NewRouter(categoryController, productController)
+	router := app.MuxRouter(categoryController, productController, userController)
+	// routerLogin := app.NewRouter(routerlogin)
 
 	server := http.Server{
 		Addr:    "localhost:3000",
-		Handler: middleware.NewAuthMiddleware(router),
+		Handler: router,
 	}
 
-	log.Println("running on port : ", server.Addr)
+	// mux router version
+	// mux := mux.NewRouter()
+	// mux.HandleFunc("/api/categories", productController.FindAll).Methods("Get")
 
+	log.Println("running on port : ", server.Addr)
+	// log.Fatal(http.ListenAndServe(":3000", mux))
 	err := server.ListenAndServe()
 	helper.PanicIfError(err)
 }

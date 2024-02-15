@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/gorilla/mux"
 )
 
 type ProductControllerImpl struct {
@@ -22,7 +22,7 @@ func NewProductController(productService service.ProductService) ProductControll
 	}
 }
 
-func (controller *ProductControllerImpl) Create(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller *ProductControllerImpl) Create(writter http.ResponseWriter, request *http.Request) {
 	productCreateRequest := webProducts.ProductCreateRequest{}
 	err := helper.ReadFromRequestBody(request, &productCreateRequest)
 	if err != nil {
@@ -41,18 +41,21 @@ func (controller *ProductControllerImpl) Create(writter http.ResponseWriter, req
 		Data:   productResponse,
 	}
 	if e != nil {
-		log.Println(e)
+		log.Println(e, "line 45")
 	}
 	helper.WriteToResponseBody(writter, webResponse)
 
 }
 
-func (controller *ProductControllerImpl) FindById(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	productId := params.ByName("productId")
+func (controller *ProductControllerImpl) FindById(writter http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	productId := vars["productId"]
+
 	id, err := strconv.Atoi(productId)
 	helper.PanicIfError(err)
 
 	productResponse := controller.ProductService.FindById(request.Context(), id)
+
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",
@@ -62,7 +65,7 @@ func (controller *ProductControllerImpl) FindById(writter http.ResponseWriter, r
 	helper.WriteToResponseBody(writter, webResponse)
 }
 
-func (controller *ProductControllerImpl) FindAll(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller *ProductControllerImpl) FindAll(writter http.ResponseWriter, request *http.Request) {
 	productResponses := controller.ProductService.FindAll(request.Context())
 	webResponse := web.WebResponse{
 		Code:   200,
@@ -73,11 +76,12 @@ func (controller *ProductControllerImpl) FindAll(writter http.ResponseWriter, re
 	helper.WriteToResponseBody(writter, webResponse)
 }
 
-func (controller *ProductControllerImpl) Update(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller *ProductControllerImpl) Update(writter http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
 	productUpdateRequest := webProducts.ProductUpdateRequest{}
 	helper.ReadFromRequestBody(request, &productUpdateRequest)
 
-	productId := params.ByName("productId")
+	productId := vars["productId"]
 	id, err := strconv.Atoi(productId) // conversi string ke object 'Atoi'
 	helper.PanicIfError(err)
 
@@ -94,8 +98,9 @@ func (controller *ProductControllerImpl) Update(writter http.ResponseWriter, req
 	helper.WriteToResponseBody(writter, webResponse)
 }
 
-func (controller *ProductControllerImpl) Delete(writter http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	productId := params.ByName("productId")
+func (controller *ProductControllerImpl) Delete(writter http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	productId := vars["productId"]
 	id, err := strconv.Atoi(productId) // conversi string ke object 'Atoi'
 	helper.PanicIfError(err)
 
