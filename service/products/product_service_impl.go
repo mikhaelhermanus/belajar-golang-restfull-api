@@ -33,7 +33,6 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request web.Produ
 			Message: err.Error(),
 		}, err
 	}
-	// helper.PanicIfError(err)
 
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)

@@ -32,7 +32,7 @@ func (repository *ProductsRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, 
 
 func (repository *ProductsRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, productId int) (domain.ProductsAll, error) {
 	// select products.id as product_id, products.name as product_name, category.name as category from products join category on category.id = products.category_id where products.id = 2;
-	SQL := "select products.id as product_id, products.name as product_name, category.name as category from products join category on category.id = products.category_id where products.id = ?"
+	SQL := "select products.id as product_id, products.name as product_name, category.name as category, products.price as products_price from products join category on category.id = products.category_id where products.id = ?"
 
 	rows, err := tx.QueryContext(ctx, SQL, productId)
 
@@ -41,7 +41,7 @@ func (repository *ProductsRepositoryImpl) FindById(ctx context.Context, tx *sql.
 
 	product := domain.ProductsAll{}
 	if rows.Next() {
-		err := rows.Scan(&product.Id, &product.Name, &product.CategoryName)
+		err := rows.Scan(&product.Id, &product.Name, &product.CategoryName, &product.Price)
 		helper.PanicIfError(err)
 		return product, nil
 	} else {
@@ -51,7 +51,7 @@ func (repository *ProductsRepositoryImpl) FindById(ctx context.Context, tx *sql.
 
 func (repository *ProductsRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.ProductsAll {
 	// select products.id as product_id, products.name as product_name, category.name as category from products join category on category.id = products.category_id;
-	SQL := "select products.id as product_id, products.name as product_name, category.name as category from products join category on category.id = products.category_id"
+	SQL := "select products.id as product_id, products.name as product_name, category.name as category, products.price as products_price from products join category on category.id = products.category_id"
 	rows, err := tx.QueryContext(ctx, SQL)
 	helper.PanicIfError(err)
 	defer rows.Close()
@@ -60,7 +60,7 @@ func (repository *ProductsRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	for rows.Next() {
 		product := domain.ProductsAll{}
 		// scan ordering by sql syntax we fill example sql : id, name, categoryName
-		err := rows.Scan(&product.Id, &product.Name, &product.CategoryName)
+		err := rows.Scan(&product.Id, &product.Name, &product.CategoryName, &product.Price)
 		helper.PanicIfError(err)
 		products = append(products, product)
 	}

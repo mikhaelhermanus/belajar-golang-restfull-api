@@ -18,6 +18,7 @@ func ToProductResponse(product domain.ProductsAll) productWeb.ProductsResponse {
 		Id:           product.Id,
 		Name:         product.Name,
 		CategoryName: product.CategoryName,
+		Price:        product.Price,
 	}
 }
 
