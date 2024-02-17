@@ -5,5 +5,6 @@ type ProductsResponse struct {
 	Id           int    `json:"id,omitempty"`
 	Name         string `json:"name,omitempty"`
 	CategoryName string `json:"category_name,omitempty"`
+	Price        int    `json:"price,omitempty"`
 	Message      string `json:"message,omitempty"`
 }
