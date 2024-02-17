@@ -28,7 +28,12 @@ func NewProductService(productRepository repository.ProductsRepository, DB *sql.
 
 func (service *ProductServiceImpl) Create(ctx context.Context, request web.ProductCreateRequest) (web.ProductsResponse, error) {
 	err := service.Validate.Struct(request)
-	helper.PanicIfError(err)
+	if err != nil {
+		return web.ProductsResponse{
+			Message: err.Error(),
+		}, err
+	}
+	// helper.PanicIfError(err)
 
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
@@ -37,13 +42,15 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request web.Produ
 	products := domain.Products{
 		Name:       request.Name,
 		CategoryId: request.CategoryId,
+		Price:      request.Price,
 	}
 
 	products, err = service.ProductsRepository.Save(ctx, tx, products)
 	helper.PanicIfError(err)
 	return web.ProductsResponse{
-		Id:   products.Id,
-		Name: products.Name,
+		Id:    products.Id,
+		Name:  products.Name,
+		Price: products.Price,
 	}, nil
 }
 

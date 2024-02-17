@@ -17,8 +17,8 @@ func NewProductsRepository() ProductsRepository {
 }
 
 func (repository *ProductsRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, products domain.Products) (domain.Products, error) {
-	SQL := "insert into products (name, category_id) values (?, ?)"
-	result, err := tx.ExecContext(ctx, SQL, products.Name, products.CategoryId)
+	SQL := "insert into products (name, category_id, price) values (?, ?, ?)"
+	result, err := tx.ExecContext(ctx, SQL, products.Name, products.CategoryId, products.Price)
 	if err != nil {
 		log.Println(err.Error(), "line 22")
 		return domain.Products{}, err
