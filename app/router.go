@@ -2,6 +2,7 @@ package app
 
 import (
 	"belajar-golang-restful-api/controller"
+	orderController "belajar-golang-restful-api/controller/orders"
 	productController "belajar-golang-restful-api/controller/products"
 	userController "belajar-golang-restful-api/controller/users"
 	"belajar-golang-restful-api/middleware"
@@ -41,7 +42,7 @@ func NewRouter(categoryController controller.CategoryController, productControll
 	return router
 }
 
-func MuxRouter(categoryController controller.CategoryController, productController productController.ProductController, userController userController.UserController) *mux.Router {
+func MuxRouter(categoryController controller.CategoryController, productController productController.ProductController, userController userController.UserController, orderController orderController.OrderController) *mux.Router {
 	routerMux := mux.NewRouter()
 	// Category Service
 	routerMux.HandleFunc("/api/categories", middleware.ValidateMiddleware(categoryController.FindAll)).Methods("Get")
@@ -58,6 +59,8 @@ func MuxRouter(categoryController controller.CategoryController, productControll
 	//user service
 	routerMux.HandleFunc("/api/login", userController.LoginUser).Methods("Post")
 	routerMux.HandleFunc("/api/user/register", userController.CreateUser).Methods("Post")
+	//order service
+	routerMux.HandleFunc("/api/order/create", orderController.Create).Methods("Post")
 
 	return routerMux
 }
