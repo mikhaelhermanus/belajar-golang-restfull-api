@@ -15,9 +15,9 @@ func NewOrdersRepository() OrdersRepository {
 	return &OrdersRepositoryImpl{}
 }
 
-func (repository *OrdersRepositoryImpl) CreateOrder(ctx context.Context, tx *sql.Tx, order domain.Orders) (domain.Orders, error) {
+func (repository *OrdersRepositoryImpl) CreateOrder(ctx context.Context, db *sql.DB, order domain.Orders) (domain.Orders, error) {
 	SQL := "insert into orders(total) values (?)"
-	result, err := tx.ExecContext(ctx, SQL, order.Total)
+	result, err := db.ExecContext(ctx, SQL, order.Total)
 	if err != nil {
 		log.Println(err.Error(), "line 21 order rep")
 		return domain.Orders{}, err
@@ -30,17 +30,18 @@ func (repository *OrdersRepositoryImpl) CreateOrder(ctx context.Context, tx *sql
 }
 
 func (repository *OrdersRepositoryImpl) CreateOrderDetail(ctx context.Context, tx *sql.Tx, orderDetail domain.OrdersDetail) (domain.OrdersDetail, error) {
+	log.Println(orderDetail.Products, "line 33")
 	SQL := "insert into orders_detail(id_product, id_order, price, quantity) Values (?, ?, ?, ?)"
-	result, err := tx.ExecContext(ctx, SQL, orderDetail.Products[0].ProductId, orderDetail.OrderId, orderDetail.Products[0].Price, orderDetail.Products[0].Quantity)
-	if err != nil {
-		log.Println(err.Error(), "line 22")
-		return domain.OrdersDetail{}, err
+
+	for _, row := range orderDetail.Products {
+		_, err := tx.ExecContext(ctx, SQL, row.ProductId, orderDetail.OrderId, row.Price, row.Quantity)
+		if err != nil {
+			log.Println(err.Error(), "line 22")
+			return domain.OrdersDetail{}, err
+		}
+
 	}
 
-	id, err := result.LastInsertId()
-	helper.PanicIfError(err)
-
-	orderDetail.OrderId = int(id)
 	return orderDetail, nil
 
 }

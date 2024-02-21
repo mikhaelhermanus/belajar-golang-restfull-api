@@ -37,19 +37,28 @@ func (service *OrderServiceImpl) CreateOrder(ctx context.Context, request web.Or
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
+	total := 0
+	arrayProduct := []domain.OrderStruct{}
 
-	orders := domain.Orders{
-		Total: 50000,
+	for _, item := range request.Product {
+		total += item.Price * item.Quantity
+		arrayProduct = append(arrayProduct, domain.OrderStruct{
+			ProductId: item.ProductId,
+			Quantity:  item.Quantity,
+			Price:     item.Price,
+		})
 	}
 
-	orders, err = service.OrderRepository.CreateOrder(ctx, tx, orders)
+	orders := domain.Orders{
+		Total: total,
+	}
+
+	orders, err = service.OrderRepository.CreateOrder(ctx, service.DB, orders)
 	helper.PanicIfError(err)
 
 	ordersDetail := domain.OrdersDetail{
-		Products: []domain.OrderStruct{
-			domain.OrderStruct{ProductId: 15, Quantity: 2, Price: 250000},
-		},
-		OrderId: orders.OrderId,
+		Products: arrayProduct,
+		OrderId:  orders.OrderId,
 	}
 
 	ordersDetail, err = service.OrderRepository.CreateOrderDetail(ctx, tx, ordersDetail)
