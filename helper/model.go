@@ -37,3 +37,10 @@ func ToProductResponses(products []domain.ProductsAll) []productWeb.ProductsResp
 	}
 	return productResponses
 }
+
+// func ToOrderResponses(productOrder []domain.OrderStruct) []orderWeb.OrderDetailResponse{
+// 	var productOrderResponses orderWeb.OrderDetailResponse
+// 	for _, order := range orders{
+// 		orderResponses = append(orderResponses, )
+// 	}
+// }
