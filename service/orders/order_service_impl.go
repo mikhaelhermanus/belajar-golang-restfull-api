@@ -1,6 +1,7 @@
 package service
 
 import (
+	"belajar-golang-restful-api/exception"
 	"belajar-golang-restful-api/helper"
 	"belajar-golang-restful-api/model/domain"
 	web "belajar-golang-restful-api/model/web/orders"
@@ -69,4 +70,30 @@ func (service *OrderServiceImpl) CreateOrder(ctx context.Context, request web.Or
 		Message: "Order Berhasil terbentuk",
 	}, nil
 
+}
+
+func (service *OrderServiceImpl) FindById(ctx context.Context, orderId int) web.OrderDetailResponse {
+	order, err := service.OrderRepository.FindById(ctx, service.DB, orderId)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	var arrayProduct []web.OrderStruct
+	var total = 0
+	for _, item := range order.Products {
+		arrayProduct = append(arrayProduct, web.OrderStruct{
+			ProductId: item.ProductId,
+			Quantity:  item.Quantity,
+			Price:     item.Price,
+			Name:      item.Name,
+		})
+		total += item.Quantity * item.Price
+	}
+
+	return web.OrderDetailResponse{
+		Products: arrayProduct,
+		Total:    total,
+		OrderId:  order.OrderId,
+		Message:  "Success",
+	}
 }

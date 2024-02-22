@@ -4,6 +4,7 @@ type OrderStruct struct {
 	ProductId int
 	Price     int
 	Quantity  int
+	Name      string
 }
 
 type OrdersDetail struct {

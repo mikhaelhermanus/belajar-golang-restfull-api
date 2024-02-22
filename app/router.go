@@ -61,6 +61,7 @@ func MuxRouter(categoryController controller.CategoryController, productControll
 	routerMux.HandleFunc("/api/user/register", userController.CreateUser).Methods("Post")
 	//order service
 	routerMux.HandleFunc("/api/order/create", orderController.Create).Methods("Post")
+	routerMux.HandleFunc("/api/order-detail/{orderId}", orderController.FindById).Methods("Get")
 
 	return routerMux
 }

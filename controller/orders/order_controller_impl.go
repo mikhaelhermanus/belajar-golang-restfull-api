@@ -7,6 +7,9 @@ import (
 	service "belajar-golang-restful-api/service/orders"
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type OrderControllerImpl struct {
@@ -43,4 +46,22 @@ func (controller *OrderControllerImpl) Create(writter http.ResponseWriter, reque
 		log.Println(e, "line order controller 43")
 	}
 	helper.WriteToResponseBody(writter, webReponse)
+}
+
+func (controller *OrderControllerImpl) FindById(writter http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	orderId := vars["orderId"]
+
+	id, err := strconv.Atoi(orderId)
+	helper.PanicIfError(err)
+
+	orderResponse := controller.OrderService.FindById(request.Context(), id)
+
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "OK",
+		Data:   orderResponse,
+	}
+
+	helper.WriteToResponseBody(writter, webResponse)
 }
